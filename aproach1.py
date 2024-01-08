@@ -1,9 +1,7 @@
 import os
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 import numpy as np
 
-np.random.seed(42)
 
 def read_movie_data(folder_path):
     movie_file_path = os.path.join(folder_path, 'movies.dat')
@@ -25,14 +23,18 @@ class TDMovieRecommender:
         user_ratings = self.ratings[self.ratings['UserID'] == user_id][['MovieID', 'Rating']]
         return user_ratings
 
+    def initialize_Q_values(self):
+        all_movie_ids = self.movies['MovieID'].tolist()
+        for movie_id in all_movie_ids:
+            self.Q_values[movie_id] = np.random.rand()  # Random initialization
+
     def update_Q_values(self, state, reward, next_state, alpha, gamma):
-        current_Q = self.Q_values.get(state, 0)
-        next_Q = self.Q_values.get(next_state, 0)
+        current_Q = self.Q_values.get(state, np.random.rand())  # Initialize if not exists
+        next_Q = self.Q_values.get(next_state, np.random.rand())
         updated_Q = current_Q + alpha * (reward + gamma * next_Q - current_Q)
         self.Q_values[state] = updated_Q
 
     def select_action(self, state, epsilon):
-        np.random.seed(42)
         if np.random.rand() < epsilon:
             return np.random.choice(self.movies['MovieID'])
         else:
@@ -41,6 +43,8 @@ class TDMovieRecommender:
 
     def recommend_movies_td(self, user_id, top_n=5, alpha=0.1, gamma=0.9, epsilon=0.1):
         user_history = self.get_user_history(user_id)
+
+        self.initialize_Q_values()  # Initialize Q-values before training
 
         for i in range(len(user_history) - 1):
             state = user_history.iloc[i]['MovieID']
@@ -52,8 +56,6 @@ class TDMovieRecommender:
         current_state = user_history.iloc[-1]['MovieID']
         recommended_movie_ids = [self.select_action(current_state, epsilon) for _ in range(top_n)]
         recommended_movie_names = self.movies[self.movies['MovieID'].isin(recommended_movie_ids)]['Title'].tolist()
-
-        print(f"TD Recommended Movie IDs: {recommended_movie_ids}")
 
         return recommended_movie_names
 

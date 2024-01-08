@@ -1,9 +1,7 @@
 import os
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 import numpy as np
 
-np.random.seed(42)
 
 def read_movie_data(folder_path):
     movie_file_path = os.path.join(folder_path, 'movies.dat')
@@ -25,14 +23,19 @@ class SARSAMovieRecommender:
         user_ratings = self.ratings[self.ratings['UserID'] == user_id][['MovieID', 'Rating']]
         return user_ratings
 
+    def initialize_Q_values(self):
+        all_movie_ids = self.movies['MovieID'].tolist()
+        for movie_id in all_movie_ids:
+            for action_id in all_movie_ids:
+                self.Q_values[(movie_id, action_id)] = np.random.rand()  # Random initialization
+
     def update_Q_values(self, state, action, reward, next_state, next_action, alpha, gamma):
-        current_Q = self.Q_values.get((state, action), 0)
-        next_Q = self.Q_values.get((next_state, next_action), 0)
+        current_Q = self.Q_values.get((state, action), np.random.rand())  # Initialize if not exists
+        next_Q = self.Q_values.get((next_state, next_action), np.random.rand())
         updated_Q = current_Q + alpha * (reward + gamma * next_Q - current_Q)
         self.Q_values[(state, action)] = updated_Q
 
     def select_action(self, state, epsilon):
-        np.random.seed(42)
         if np.random.rand() < epsilon:
             return np.random.choice(self.movies['MovieID'])
         else:
@@ -41,6 +44,8 @@ class SARSAMovieRecommender:
 
     def recommend_movies_sarsa(self, user_id, top_n=5, alpha=0.1, gamma=0.9, epsilon=0.1):
         user_history = self.get_user_history(user_id)
+
+        self.initialize_Q_values()  # Initialize Q-values before training
 
         for i in range(len(user_history) - 1):
             state = user_history.iloc[i]['MovieID']
