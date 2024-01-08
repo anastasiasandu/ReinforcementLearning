@@ -1,7 +1,9 @@
-#model using KNN
 import os
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
+import numpy as np
+
+np.random.seed(42)
 
 def read_movie_data(folder_path):
     movie_file_path = os.path.join(folder_path, 'movies.dat')
@@ -13,41 +15,57 @@ def read_rating_data(folder_path):
     ratings = pd.read_csv(rating_file_path, sep='::', engine='python', header=None, names=['UserID', 'MovieID', 'Rating', 'Timestamp'], encoding='latin-1')
     return ratings
 
-def read_user_data(folder_path):
-    user_file_path = os.path.join(folder_path, 'users.dat')
-    users = pd.read_csv(user_file_path, sep='::', engine='python', header=None, names=['UserID', 'Gender', 'Age', 'Occupation', 'Zip-code'], encoding='latin-1')
-    return users
+class SARSAMovieRecommender:
+    def __init__(self, movies, ratings):
+        self.movies = movies
+        self.ratings = ratings
+        self.Q_values = {}
 
-def recommend_movies(user_id, model, ratings_df, movies_df, top_n=5):
-    user_rated_movies = ratings_df[ratings_df['UserID'] == user_id]['MovieID']
-    unrated_movies = movies_df[~movies_df['MovieID'].isin(user_rated_movies)]
+    def get_user_history(self, user_id):
+        user_ratings = self.ratings[self.ratings['UserID'] == user_id][['MovieID', 'Rating']]
+        return user_ratings
 
-    user_data = ratings_df[ratings_df['UserID'] == user_id][['MovieID', 'Rating']]
+    def update_Q_values(self, state, action, reward, next_state, next_action, alpha, gamma):
+        current_Q = self.Q_values.get((state, action), 0)
+        next_Q = self.Q_values.get((next_state, next_action), 0)
+        updated_Q = current_Q + alpha * (reward + gamma * next_Q - current_Q)
+        self.Q_values[(state, action)] = updated_Q
 
-    model.fit(user_data[['MovieID']])
-    distances, indices = model.kneighbors(unrated_movies[['MovieID']], n_neighbors=top_n)
+    def select_action(self, state, epsilon):
+        np.random.seed(42)
+        if np.random.rand() < epsilon:
+            return np.random.choice(self.movies['MovieID'])
+        else:
+            possible_actions = self.movies['MovieID'].tolist()
+            return np.random.choice(possible_actions, size=1)[0]
 
-    recommendations = unrated_movies.iloc[indices.flatten()].copy()
-    recommendations['Rating'] = user_data['Rating'].mean()
+    def recommend_movies_sarsa(self, user_id, top_n=5, alpha=0.1, gamma=0.9, epsilon=0.1):
+        user_history = self.get_user_history(user_id)
 
-    recommended_movie_names = recommendations['Title'].tolist()[:top_n]  # Extracting only top N movie names
+        for i in range(len(user_history) - 1):
+            state = user_history.iloc[i]['MovieID']
+            action = user_history.iloc[i + 1]['MovieID']
+            reward = user_history.iloc[i + 1]['Rating']
+            next_state = user_history.iloc[i + 1]['MovieID']
 
-    return recommended_movie_names
+            next_action = self.select_action(next_state, epsilon)
+            self.update_Q_values(state, action, reward, next_state, next_action, alpha, gamma)
+
+        current_state = user_history.iloc[-1]['MovieID']
+        recommended_movie_ids = [self.select_action(current_state, epsilon) for _ in range(top_n)]
+        recommended_movie_names = self.movies[self.movies['MovieID'].isin(recommended_movie_ids)]['Title'].tolist()
+
+        return recommended_movie_names
 
 if __name__ == "__main__":
     folder_path = "ml-1m"
 
     movies = read_movie_data(folder_path)
     ratings = read_rating_data(folder_path)
-    users = read_user_data(folder_path)
 
-    merged_data = pd.merge(ratings, movies, on='MovieID')
-    users = pd.merge(users, merged_data, on='UserID')
-    users['Genres'] = users['Genres'].str.split('|')
-
-    model = NearestNeighbors(metric='cosine', algorithm='brute')
+    sarsa_recommender = SARSAMovieRecommender(movies, ratings)
 
     user_id_to_recommend = int(input("Enter User ID: "))
-    recommended_movies = recommend_movies(user_id_to_recommend, model, ratings, movies, top_n=5)
+    recommended_movies = sarsa_recommender.recommend_movies_sarsa(user_id_to_recommend, top_n=5)
     print(f'\nTop Recommendations for User {user_id_to_recommend}:')
     print(recommended_movies)
