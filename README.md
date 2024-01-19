@@ -52,28 +52,27 @@ Proiectul se concentrează pe dezvoltarea unui sistem de recomandare a filmelor 
     - Procesul de recomandare implică selectarea filmelor cu cele mai mari valori Q, iar sistemul utilizează un factor de explorare (epsilon) pentru a echilibra între exploatarea informațiilor cunoscute și explorarea de noi posibilități.  
     - Obiectivul modelului este de a furniza o listă de recomandări de filme de top-n pentru un utilizator, derivate din învățarea tiparelor de vizionare ale acestuia și din adaptarea la preferințele sale în schimbare.  
   
-- Modelul 3  
-  - Descrieți pe scurt fiecare model utilizat în cadrul proiectului. Includeți următoarele:  
-    - Numele modelului  
-    - Scopul/cazul de utilizare al modelului  
-    - Principiul de funcționare de bază (opțional)  
-  
+- Modelul 3: Period Genre-Based Movie Recommender
+  - Scop/Caz de Utilizare:
+    - Acest model este destinat recomandării filmelor pe baza perioadelor istorice și genurilor. Este util pentru a sugera filme utilizatorilor bazându-se pe preferințele lor în evoluție.
+  - Principiul de Funcționare:
+    - Modelul îmbină date despre filme și evaluările utilizatorilor pentru a învăța preferințele acestora. Utilizează Q-learning, unde valori Q sunt asociate cu combinații de perioade și genuri de filme. Se antrenează prin actualizarea acestor valori Q bazându-se pe istoricul de evaluări al utilizatorilor, recomandând filme cu cele mai mari valori Q care nu au fost încă vizionate de utilizator. 
   
 ## Differences  
-| Caracteristică/Model         | TD Movie Recommender                         | Recomandare de Filme Bazată pe SARSA           |  
-|------------------------------|---------------------------------------------|-----------------------------------------------|  
-| **Abordare de Învățare**     | Învățare prin Diferență Temporală (TD)      | Învățare prin Stare-Actiune-Reward-Stare-Actiune (SARSA) |  
-| **Avantaje**                 |                                             |                                               |  
-| *Adaptabilitate*             | - Se adaptează la preferințele utilizatorului în timp. | - Se adaptează continuu la schimbările comportamentului utilizatorului. |  
-| *Complexitatea Algoritmului* | - Relativ simplu și ușor de implementat.    | - Gestionează secvențe de acțiuni, ceea ce poate duce la recomandări mai nuanțate. |  
-| *Precizia Predictivă*        | - Eficient în scenarii cu preferințe stabile. | - Potențial mai precisă, deoarece ia în considerare secvențe de acțiuni și recompense. |  
-| *Explorare vs. Exploatare*    | - Menține un echilibru între explorarea filmelor noi și exploatarea preferințelor cunoscute. | - Menține un echilibru explicit între explorare și exploatare prin învățarea politicilor. |  
-| **Dezavantaje**              |                                             |                                               |  
-| *Sensibilitate la Datele Inițiale* | - Recomandările inițiale pot fi mai puțin precise până când se adună suficiente date. | - Este posibil să fie nevoie de mai multe date pentru a învăța eficient secvențe de acțiune. |  
-| *Receptivitate la Schimbare* | - S-ar putea să se adapteze mai greu la schimbările bruște ale preferințelor utilizatorilor. | - Mai receptivă la schimbările imediate în comportamentul utilizatorului datorită învățării pe bază de politici. |  
-| *Complexitate Computațională* | - Complexitate computațională mai mică.    | - Complexitate de calcul mai mare datorită luării în considerare a perechilor stare-acțiune. |  
-| *Potrivire pentru Cazurile de Utilizare* | - Mai potrivită pentru mediile stabile în care preferințele utilizatorilor nu se schimbă rapid. | - Ideală pentru mediile dinamice în care preferințele utilizatorilor se schimbă frecvent. |  
-  
+| Caracteristică/Model                      | TD Movie Recommender                         | Recomandare de Filme Bazată pe SARSA           | Period Genre-Based Recommender |
+|-------------------------------------------|---------------------------------------------|-----------------------------------------------|--------------------------------|
+| **Abordare de Învățare**                  | Învățare prin Diferență Temporală (TD)      | Învățare prin Stare-Actiune-Reward-Stare-Actiune (SARSA) | Învățare bazată pe Q-values pentru perioade și genuri |
+| **Avantaje**                              |                                             |                                               |                                |
+| *Adaptabilitate*                          | Se adaptează la preferințele utilizatorului în timp. | Se adaptează continuu la schimbările comportamentului utilizatorului. | Adaptabil la preferințe pe baza perioadelor și genurilor |
+| *Complexitatea Algoritmului*              | Relativ simplu și ușor de implementat.    | Gestionează secvențe de acțiuni, ceea ce poate duce la recomandări mai nuanțate. | Moderată; combină analiza perioadelor și genurilor |
+| *Precizia Predictivă*                     | Eficient în scenarii cu preferințe stabile. | Potențial mai precisă, deoarece ia în considerare secvențe de acțiuni și recompense. | Poate oferi recomandări mai specifice bazate pe perioade și genuri |
+| *Explorare vs. Exploatare*                | Menține un echilibru între explorarea filmelor noi și exploatarea preferințelor cunoscute. | Menține un echilibru explicit între explorare și exploatare prin învățarea politicilor. | Echilibrează explorarea și exploatarea prin selecția bazată pe gen și perioadă |
+| **Dezavantaje**                           |                                             |                                               |                                |
+| *Sensibilitate la Datele Inițiale*        | Recomandările inițiale pot fi mai puțin precise până când se adună suficiente date. | Este posibil să fie nevoie de mai multe date pentru a învăța eficient secvențe de acțiune. | Necesită date inițiale diverse pentru a acoperi diferite perioade și genuri |
+| *Receptivitate la Schimbare*              | S-ar putea să se adapteze mai greu la schimbările bruște ale preferințelor utilizatorilor. | Mai receptivă la schimbările imediate în comportamentul utilizatorului datorită învățării pe bază de politici. | Se adaptează la schimbările în preferințele de gen și perioadă ale utilizatorilor |
+| *Complexitate Computațională*             | Complexitate computațională mai mică.    | Complexitate de calcul mai mare datorită luării în considerare a perechilor stare-acțiune. | Complexitate moderată, influențată de diversitatea genurilor și perioadelor |
+| *Potrivire pentru Cazurile de Utilizare*  | Mai potrivită pentru mediile stabile în care preferințele utilizatorilor nu se schimbă rapid. | Ideală pentru mediile dinamice în care preferințele utilizatorilor se schimbă frecvent. | Potrivită pentru preferințele legate de genuri și perioade specifice |
+
   
 ## Instalare și configurare  
 - Instrucțiuni detaliate privind modul de configurare a proiectului. Includeți:  
