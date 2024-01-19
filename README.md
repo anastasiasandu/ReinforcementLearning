@@ -1,4 +1,4 @@
-# Numele proiectului: [Numele proiectului]  
+# Numele proiectului: Movie Recommendations
   
 ## Prezentare generală  
 Sistemul de recomandare a filmelor este conceput pentru a aborda problema găsirii filmelor potrivite dintr-o cantitate enorma de date. Scopul proiectului este de a reduce la minimum timpul pe care utilizatorii îl petrec în căutarea de filme prin furnizarea de recomandări personalizate.  
