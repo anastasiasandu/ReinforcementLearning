@@ -93,55 +93,38 @@ Proiectul se concentrează pe dezvoltarea unui sistem de recomandare a filmelor 
 ## Usage  
   - Model 1: `python approach1.py`  
   - Model 2: `python approach2.py`  
+  - Model 3: `python approach3.py`
   
 ## Model Details  
-| Caracteristică                   | TD Movie Recommender                              | Recomandare de Filme Bazată pe SARSA                   |  
-|---------------------------------|----------------------------------------------------|-------------------------------------------------------|  
-| **Arhitectură și Design**       | - Bazată pe învățarea prin Diferență Temporală (TD). | - Folosește algoritmul SARSA (Stare-Actiune-Recompensă-Stare-Actiune). |  
-|                                 | - Menține valorile Q pentru fiecare film.           | - Menține valorile Q pentru perechi stare-acțiune (secvențe de filme). |  
-|                                 | - Actualizează valorile Q utilizând evaluările utilizatorilor ca recompense. | - Actualizează valorile Q pe baza tranzițiilor între perechile stare-acțiune. |  
-| **Formatul și Cerințele Datelor de Intrare** | - Necesită fișierele `movies.dat` și `ratings.dat`. | - Necesită, de asemenea, fișierele `movies.dat` și `ratings.dat`. |  
-|                                 | - Datele sunt în format tabular, codate în 'latin-1'.  | - Datele au un format tabular similar, codate în 'latin-1'. |  
-|                                 | - Datele cheie: MovieID, Titlu, Genuri pentru filme; UserID, MovieID, Evaluare pentru evaluări. | - La fel ca în cazul TD Movie Recommender. |  
-| **Formatul și Interpretarea Datelor de Ieșire**  | - Oferă o listă de titluri de filme ca recomandări. | - Oferă o listă de titluri de filme ca recomandări. |  
-|                                 | - Recomandările se bazează pe cele mai mari valori Q. | - Recomandările sunt derivate din valorile Q ale perechilor stare-acțiune. |  
-  
+## Model Details  
+| Caracteristică                   | TD Movie Recommender                              | Recomandare de Filme Bazată pe SARSA                   | Period Genre-Based Recommender |
+|---------------------------------|----------------------------------------------------|-------------------------------------------------------|--------------------------------|
+| **Arhitectură și Design**       | - Bazată pe învățarea prin Diferență Temporală (TD). | - Folosește algoritmul SARSA (Stare-Actiune-Recompensă-Stare-Actiune). | - Se bazează pe analiza perioadelor istorice și genurilor filmelor. |
+|                                 | - Menține valorile Q pentru fiecare film.           | - Menține valorile Q pentru perechi stare-acțiune (secvențe de filme). | - Menține valorile Q pentru combinații de perioade și genuri. |
+|                                 | - Actualizează valorile Q utilizând evaluările utilizatorilor ca recompense. | - Actualizează valorile Q pe baza tranzițiilor între perechile stare-acțiune. | - Actualizează valorile Q pe baza preferințelor utilizatorilor pentru perioade și genuri. |
+| **Formatul și Cerințele Datelor de Intrare** | - Necesită fișierele `movies.dat` și `ratings.dat`. | - Necesită, de asemenea, fișierele `movies.dat` și `ratings.dat`. | - Necesită fișierele `movies.dat` și `ratings.dat`, cu procesare suplimentară pentru perioade și genuri. |
+|                                 | - Datele sunt în format tabular, codate în 'latin-1'.  | - Datele au un format tabular similar, codate în 'latin-1'. | - Datele sunt prelucrate pentru a identifica perioade istorice și genuri. |
+|                                 | - Datele cheie: MovieID, Titlu, Genuri pentru filme; UserID, MovieID, Evaluare pentru evaluări. | - La fel ca în cazul TD Movie Recommender. | - Include analiza anilor și genurilor pentru filme, pe lângă datele de bază. |
+| **Formatul și Interpretarea Datelor de Ieșire**  | - Oferă o listă de titluri de filme ca recomandări. | - Oferă o listă de titluri de filme ca recomandări. | - Oferă recomandări bazate pe cele mai bune combinații de perioade și genuri. |
+|                                 | - Recomandările se bazează pe cele mai mari valori Q. | - Recomandările sunt derivate din valorile Q ale perechilor stare-acțiune. | - Recomandările sunt selectate pe baza valorilor Q pentru perioade și genuri preferate. |
+
 ## Training and Evaluation  
-| Proces de Antrenament și Evaluare             | Recomandare de Filme Bazată pe Diferență Temporală (TD) | Recomandare de Filme Bazată pe SARSA        |  
-|----------------------------------------------|--------------------------------------------------------|-------------------------------------------|  
-| **Pregătirea Datelor și Prelucrarea**         | - Datele sunt încărcate din fișierele `movies.dat` și  | - Datele sunt încărcate din fișierele `movies.dat` și |  
-|                                              |   `ratings.dat`.                                      |   `ratings.dat`.                                    |  
-|                                              | - Datele sunt filtrate pentru a selecta coloanele     | - Datele sunt filtrate pentru a selecta coloanele    |  
-|                                              |   relevante (UserID, MovieID, Rating).                |   relevante (UserID, MovieID, Rating).               |  
-|                                              | - Se utilizează codificarea 'latin-1' din cauza      | - Se utilizează codificarea 'latin-1' din cauza     |  
-|                                              |   formatului datelor.                                 |   formatului datelor.                                |  
-|                                              | - Evaluările utilizatorilor sunt folosite ca recompense | - Evaluările utilizatorilor sunt folosite ca recompense |  
-|                                              |   pentru antrenament.                                 |   pentru antrenament.                                |  
-|                                              |                                                      |                                                     |  
-| **Procedura de Antrenament**                  | - Modelul utilizează învățarea prin Diferență Temporală | - Modelul utilizează algoritmul SARSA (Stare-Actiune-  |  
-|                                              |   (TD).                                              |   Recompensă-Stare-Actiune) pentru învățare.           |  
-|                                              | - Valorile Q pentru fiecare film sunt inițializate   | - Valorile Q pentru perechi stare-acțiune sunt inițializate |  
-|                                              |   aleator.                                           |   aleator.                                            |  
-|                                              | - Pentru istoricul evaluărilor fiecărui utilizator,   | - Pentru istoricul evaluărilor fiecărui utilizator,    |  
-|                                              |   valorile Q sunt actualizate folosind algoritmul TD. |   valorile Q sunt actualizate pe baza algoritmului SARSA. |  
-|                                              | - Parametri: Rată de Învățare (alpha), factor de     | - Parametri: Rată de Învățare (alpha), factor de        |  
-|                                              |   discount (gamma).                                  |   discount (gamma).                                   |  
-|                                              |                                                      |                                                     |  
-| **Metrici și Metode de Evaluare**            | - Evaluarea este adesea implicită, concentrată pe    | - Evaluarea este adesea implicită, cu accent pe capacitatea |  
-|                                              |   capacitatea de a se adapta la preferințele         |   modelului de a se adapta la preferințele dinamice ale   |  
-|                                              |   utilizatorului în timp.                           |   utilizatorului.                                     |  
-|                                              | - Recomandările sunt generate pe baza valorilor Q   | - Recomandările sunt generate pe baza valorilor Q ale    |  
-|                                              |   învățate.                                          |   perechilor stare-acțiune.                            |  
-|                                              | - Nu există metrici de evaluare explicite; feedbackul | - Nu există metrici de evaluare explicite; feedbackul  |  
-|                                              |   utilizatorului poate ghida rafinarea modelului.    |   utilizatorului poate ghida rafinarea modelului.     |  
-|                                              | - Satisfacția utilizatorului și interacțiunea sunt  | - Satisfacția utilizatorului și interacțiunea sunt    |  
-|                                              |   indicatori cheie ai succesului.                   |   indicatori cheie ai succesului.                    |  
-  
+| Proces de Antrenament și Evaluare             | Recomandare de Filme Bazată pe Diferență Temporală (TD) | Recomandare de Filme Bazată pe SARSA        | Period Genre-Based Recommender |
+|----------------------------------------------|--------------------------------------------------------|-------------------------------------------|--------------------------------|
+| **Pregătirea Datelor și Prelucrarea**        | - Datele sunt încărcate din fișierele `movies.dat` și `ratings.dat`. | - Datele sunt încărcate din fișierele `movies.dat` și `ratings.dat`. | - Datele sunt încărcate din `movies.dat` și `ratings.dat`. Prelucrarea suplimentară pentru perioade și genuri. |
+|                                              | - Datele sunt filtrate pentru a selecta coloanele relevante (UserID, MovieID, Rating). | - Datele sunt filtrate pentru a selecta coloanele relevante (UserID, MovieID, Rating). | - Filtrare pentru UserID, MovieID, Rating. Codificarea 'latin-1'. |
+|                                              | - Se utilizează codificarea 'latin-1' din cauza formatului datelor. | - Se utilizează codificarea 'latin-1' din cauza formatului datelor. | - Evaluările utilizatorilor ca recompense. Analiza anilor și genurilor pentru filme. |
+| **Procedura de Antrenament**                  | - Modelul utilizează învățarea prin Diferență Temporală (TD). | - Modelul utilizează algoritmul SARSA (Stare-Actiune-Recompensă-Stare-Actiune) pentru învățare. | - Aplică Q-learning pentru perioade și genuri. Inițializează și actualizează valorile Q. |
+|                                              | - Valorile Q pentru fiecare film sunt inițializate aleator. | - Valorile Q pentru perechi stare-acțiune sunt inițializate aleator. | - Parametri: Rată de Învățare (alpha), discount (gamma). |
+| **Metrici și Metode de Evaluare**            | - Evaluarea este adesea implicită, concentrată pe capacitatea de a se adapta la preferințele utilizatorului în timp. | - Evaluarea este adesea implicită, cu accent pe capacitatea modelului de a se adapta la preferințele dinamice ale utilizatorului. | - Evaluarea implicită, axată pe adaptarea la preferințele utilizatorului. |
+|                                              | - Recomandările sunt generate pe baza valorilor Q învățate. | - Recomandările sunt generate pe baza valorilor Q ale perechilor stare-acțiune. | - Recomandări bazate pe valorile Q pentru perioade și genuri. Nu există metrici de evaluare explicite; feedback-ul utilizatorului esențial. |
+|                                              | - Nu există metrici de evaluare explicite; feedbackul utilizatorului poate ghida rafinarea modelului. | - Nu există metrici de evaluare explicite; feedbackul utilizatorului poate ghida rafinarea modelului. | - Satisfacția utilizatorului și interacțiunea ca indicatori de succes. |
+
 ## Results and Discussion  
-| Aspect                                      | Recomandare de Filme Bazată pe Diferență Temporală (TD) | Recomandare de Filme Bazată pe SARSA        |  
-|---------------------------------------------|--------------------------------------------------------|-------------------------------------------|  
-| **Metrici de Performanță**                   | Implicit, satisfacția utilizatorului și interacțiunea  | Implicit, satisfacția utilizatorului și interacțiunea |  
-| **Focus**                                   | Recomandări individuale pentru filme              | Recomandări sub forma secvențelor de filme   |  
-| **Viteză de Adaptare**                      | Adaptare rapidă la preferințele care se schimbă rapid | Eficient în modelarea preferințelor dinamice |  
-| **Scenarii Potrivite**                      | Schimbări frecvente în preferințele utilizatorilor | Modelează pattern-uri secvențiale de vizionare a filmelor |  
-| **Feedback de la Utilizator**               | Angajament, rate-uri de clicuri, feedback de la utilizator | Angajament, rate-uri de clicuri, feedback de la utilizator |
+| Aspect                                      | Recomandare de Filme Bazată pe Diferență Temporală (TD) | Recomandare de Filme Bazată pe SARSA        | Period Genre-Based Recommender |
+|---------------------------------------------|--------------------------------------------------------|-------------------------------------------|--------------------------------|
+| **Metrici de Performanță**                   | Implicit, satisfacția utilizatorului și interacțiunea  | Implicit, satisfacția utilizatorului și interacțiunea | Implicit, concentrare pe preferințele pe baza perioadelor și genurilor |
+| **Focus**                                   | Recomandări individuale pentru filme                   | Recomandări sub forma secvențelor de filme | Recomandări bazate pe combinații de perioade istorice și genuri |
+| **Viteză de Adaptare**                      | Adaptare rapidă la preferințele care se schimbă rapid  | Eficient în modelarea preferințelor dinamice | Adaptare la evoluția gusturilor utilizatorului în funcție de gen și perioadă |
+| **Scenarii Potrivite**                      | Schimbări frecvente în preferințele utilizatorilor     | Modelează pattern-uri secvențiale de vizionare a filmelor | Potrivit pentru utilizatorii cu preferințe specifice de gen și perioadă |
+| **Feedback de la Utilizator**               | Angajament, rate-uri de clicuri, feedback de la utilizator | Angajament, rate-uri de clicuri, feedback de la utilizator | Feedback-ul utilizatorului este crucial pentru adaptarea recomandărilor |
