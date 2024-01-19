@@ -13,6 +13,7 @@ def read_rating_data(folder_path):
     ratings = pd.read_csv(rating_file_path, sep='::', engine='python', header=None, names=['UserID', 'MovieID', 'Rating', 'Timestamp'], encoding='latin-1')
     return ratings
 
+
 class SARSAMovieRecommender:
     def __init__(self, movies, ratings):
         self.movies = movies
@@ -27,25 +28,27 @@ class SARSAMovieRecommender:
         all_movie_ids = self.movies['MovieID'].tolist()
         for movie_id in all_movie_ids:
             for action_id in all_movie_ids:
-                self.Q_values[(movie_id, action_id)] = np.random.rand()  # Random initialization
+                self.Q_values[(movie_id, action_id)] = np.random.rand()
 
     def update_Q_values(self, state, action, reward, next_state, next_action, alpha, gamma):
-        current_Q = self.Q_values.get((state, action), np.random.rand())  # Initialize if not exists
+        current_Q = self.Q_values.get((state, action), np.random.rand())
         next_Q = self.Q_values.get((next_state, next_action), np.random.rand())
         updated_Q = current_Q + alpha * (reward + gamma * next_Q - current_Q)
         self.Q_values[(state, action)] = updated_Q
 
     def select_action(self, state, epsilon):
+        possible_actions = self.movies['MovieID'].tolist()
         if np.random.rand() < epsilon:
-            return np.random.choice(self.movies['MovieID'])
+            q_values = [self.Q_values.get((state, action), 0) for action in possible_actions]
+            best_action = possible_actions[np.argmax(q_values)]
+            return best_action
         else:
-            possible_actions = self.movies['MovieID'].tolist()
             return np.random.choice(possible_actions, size=1)[0]
 
     def recommend_movies_sarsa(self, user_id, top_n=5, alpha=0.1, gamma=0.9, epsilon=0.1):
         user_history = self.get_user_history(user_id)
 
-        self.initialize_Q_values()  # Initialize Q-values before training
+        self.initialize_Q_values()
 
         for i in range(len(user_history) - 1):
             state = user_history.iloc[i]['MovieID']
@@ -69,6 +72,7 @@ if __name__ == "__main__":
     ratings = read_rating_data(folder_path)
 
     sarsa_recommender = SARSAMovieRecommender(movies, ratings)
+
 
     user_id_to_recommend = int(input("Enter User ID: "))
     recommended_movies = sarsa_recommender.recommend_movies_sarsa(user_id_to_recommend, top_n=5)
